@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["Y39Q5KPV53.com.yeonguk.DogPuzzle"],
+        "components": [
+          { "/": "/vs/*", "comment": "대전 초대" }
+        ]
+      }
+    ]
+  }
+}
