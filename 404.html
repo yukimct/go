@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DogPuzzle 대결 초대</title>
+<!--
+  GitHub Pages는 정적 호스팅이라 /vs/123456 같은 경로가 전부 404로 온다.
+  그래서 404 페이지가 곧 초대 페이지다 — 주소에서 방 번호를 읽어 보여준다.
+  앱이 있으면 dogpuzzle:// 스킴으로 앱을 깨우고, 없으면 스토어로 안내한다.
+  (앱 링크가 검증된 기기는 이 페이지에 오지도 않고 앱이 바로 뜬다.)
+-->
+<style>
+  :root { --ink:#2b2b33; --dim:#8a8a94; --accent:#17b3a8; --bg:#f2f4f6; }
+  * { box-sizing:border-box; margin:0 }
+  body { font:16px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+         background:var(--bg); color:var(--ink); min-height:100vh;
+         display:flex; align-items:center; justify-content:center; padding:24px }
+  .card { background:#fff; border-radius:20px; padding:36px 28px; max-width:360px;
+          width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.08) }
+  h1 { font-size:20px; margin-bottom:6px }
+  .dim { color:var(--dim); font-size:14px }
+  .code { font-size:40px; font-weight:900; letter-spacing:6px; color:var(--accent);
+          margin:18px 0 6px; font-variant-numeric:tabular-nums }
+  .btn { display:block; margin-top:12px; padding:14px; border-radius:999px;
+         background:var(--accent); color:#fff; font-weight:800; text-decoration:none }
+  .btn.ghost { background:#eef1f3; color:var(--ink) }
+  .stores { display:flex; gap:10px; margin-top:18px }
+  .stores a { flex:1; padding:12px; border-radius:14px; background:#eef1f3;
+              color:var(--ink); font-weight:700; text-decoration:none; font-size:14px }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🐾 DogPuzzle 대결 초대</h1>
+  <p class="dim">친구가 같이 풀자고 불렀어요</p>
+  <div class="code" id="code">······</div>
+  <p class="dim">방 번호</p>
+  <a class="btn" id="open" href="#">앱에서 열기</a>
+  <p class="dim" style="margin-top:16px">앱이 없다면</p>
+  <div class="stores">
+    <a id="android" href="#">Google Play</a>
+    <a id="ios" href="#">App Store</a>
+  </div>
+</div>
+<script>
+  // /vs/123456 → 123456
+  var m = location.pathname.match(/\/vs\/(\d{6})/);
+  var code = m ? m[1] : null;
+  if (code) {
+    document.getElementById("code").textContent = code;
+    var scheme = "dogpuzzle://vs/" + code;
+    var open = document.getElementById("open");
+    open.href = scheme;
+    // 페이지에 들어오자마자 한 번 앱을 깨워 본다. 있으면 넘어가고 없으면 그대로 남는다.
+    setTimeout(function () { location.href = scheme; }, 400);
+  } else {
+    document.querySelector(".card").innerHTML =
+      "<h1>🐾 DogPuzzle</h1><p class='dim'>주소가 올바르지 않아요</p>";
+  }
+  // 스토어 주소 — 출시 후 실제 주소로 바꿔 주세요.
+  document.getElementById("android").href =
+    "https://play.google.com/store/apps/details?id=com.yeonguk.DogPuzzle";
+  document.getElementById("ios").href =
+    "https://apps.apple.com/app/dogpuzzle"; // TODO: 심사 통과 후 앱 id로 교체
+</script>
+</body>
+</html>
