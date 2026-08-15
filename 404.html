@@ -16,6 +16,8 @@
   body { font:16px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
          background:var(--bg); color:var(--ink); min-height:100vh;
          display:flex; align-items:center; justify-content:center; padding:24px }
+  .warn { background:#fff4e5; color:#8a5a00; border-radius:12px; padding:12px 14px;
+          font-size:13.5px; line-height:1.5; margin:0 0 14px; text-align:left }
   .card { background:#fff; border-radius:20px; padding:36px 28px; max-width:360px;
           width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.08) }
   h1 { font-size:20px; margin-bottom:6px }
@@ -36,6 +38,7 @@
   <p class="dim">친구가 같이 풀자고 불렀어요</p>
   <div class="code" id="code">······</div>
   <p class="dim">방 번호</p>
+  <p class="warn" id="warn" style="display:none"></p>
   <a class="btn" id="open" href="#">앱에서 열기</a>
   <p class="dim" style="margin-top:16px">앱이 없다면</p>
   <div class="stores">
@@ -47,17 +50,61 @@
   // /vs/123456 → 123456
   var m = location.pathname.match(/\/vs\/(\d{6})/);
   var code = m ? m[1] : null;
+  var ua = navigator.userAgent || "";
+  var isiOS = /iPhone|iPad|iPod/i.test(ua);
+
+  /*
+    인앱 브라우저에서는 앱을 못 엽니다.
+
+    카카오톡·라인·인스타그램 같은 앱이 링크를 자기 안에서 여는데, 그 브라우저는
+    **유니버설 링크도 커스텀 스킴도 막습니다.** 그래서 앱이 멀쩡히 깔려 있어도
+    "앱에서 열기"가 아무 반응이 없습니다(실측: 카카오톡으로 초대를 보냈을 때).
+
+    앱·AASA·스킴이 다 정상인데 통로만 막힌 상황이라, 원인을 짐작하기가 특히 어렵습니다.
+    그래서 **왜 안 되는지 화면에 적고** 바깥 브라우저로 나갈 길을 줍니다.
+  */
+  var inApp = /KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER|DaumApps|everytimeApp|kakaostory/i.test(ua);
+
   if (code) {
     document.getElementById("code").textContent = code;
     var scheme = "dogpuzzle://vs/" + code;
     var open = document.getElementById("open");
     open.href = scheme;
-    // 페이지에 들어오자마자 한 번 앱을 깨워 본다. 있으면 넘어가고 없으면 그대로 남는다.
-    setTimeout(function () { location.href = scheme; }, 400);
+
+    if (inApp) {
+      // 안내를 먼저 보여 줍니다. 눌러도 안 되는 버튼을 그냥 두면 고장으로 읽힙니다.
+      var warn = document.getElementById("warn");
+      warn.style.display = "block";
+      warn.textContent = isiOS
+        ? "카카오톡 같은 앱 안에서는 게임을 열 수 없어요. 아래 버튼을 누르면 Safari로 넘어갑니다."
+        : "카카오톡 같은 앱 안에서는 게임을 열 수 없어요. 아래 버튼을 누르거나, 오른쪽 위 메뉴에서 ‘다른 브라우저로 열기’를 선택해 주세요.";
+      open.textContent = isiOS ? "Safari로 열기" : "브라우저로 열기";
+
+      open.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (isiOS) {
+          // x-safari-는 인앱 브라우저를 빠져나와 Safari로 넘기는 애플 전용 스킴입니다.
+          // Safari로 가면 유니버설 링크가 살아나 앱이 바로 열립니다.
+          location.href = "x-safari-" + location.href;
+        } else {
+          // 안드로이드는 intent:// 로 앱을 직접 지목합니다. 없으면 스토어로 갑니다.
+          location.href = "intent://vs/" + code
+            + "#Intent;scheme=dogpuzzle;package=com.yeonguk.DogPuzzle;"
+            + "S.browser_fallback_url="
+            + encodeURIComponent("https://play.google.com/store/apps/details?id=com.yeonguk.DogPuzzle")
+            + ";end";
+        }
+      });
+    } else {
+      // 평범한 브라우저 — 들어오자마자 한 번 앱을 깨워 봅니다.
+      // 있으면 넘어가고 없으면 이 페이지에 그대로 남습니다.
+      setTimeout(function () { location.href = scheme; }, 400);
+    }
   } else {
     document.querySelector(".card").innerHTML =
       "<h1>🐾 DogPuzzle</h1><p class='dim'>주소가 올바르지 않아요</p>";
   }
+
   // 스토어 주소 — 출시 후 실제 주소로 바꿔 주세요.
   document.getElementById("android").href =
     "https://play.google.com/store/apps/details?id=com.yeonguk.DogPuzzle";
