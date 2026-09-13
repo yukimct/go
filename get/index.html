@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DogPuzzle 받기</title>
+<meta name="description" content="한 칸씩 짚어 가며 푸는 강아지 퍼즐. 무료로 받으세요.">
+
+<!-- 카카오톡·인스타그램에 붙였을 때 보이는 미리보기. 이게 없으면 주소만 덩그러니 뜬다. -->
+<meta property="og:title" content="🐾 DogPuzzle">
+<meta property="og:description" content="한 칸씩 짚어 가며 푸는 강아지 퍼즐">
+<meta property="og:url" content="https://go.koinoroom.com/get">
+<meta name="twitter:card" content="summary">
+
+<!--
+  결과 공유에 붙는 **설치 링크**입니다. /vs/123456(대결 초대)와는 쓰임이 다릅니다 —
+  저쪽은 방으로 데려가고, 여기는 그냥 스토어로 데려갑니다.
+
+  ⚠️ **앱에는 이 주소만 박혀 있습니다.** 스토어 주소는 stores.js 한 곳에 있어서,
+  iOS 앱 id가 나오면 그 파일만 고치면 됩니다. 이미 나간 공유 링크까지 다 따라옵니다.
+-->
+<style>
+  :root { --ink:#2b2b33; --dim:#8a8a94; --accent:#17b3a8; --bg:#f2f4f6; }
+  * { box-sizing:border-box; margin:0 }
+  body { font:16px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+         background:var(--bg); color:var(--ink); min-height:100vh;
+         display:flex; align-items:center; justify-content:center; padding:24px }
+  .card { background:#fff; border-radius:20px; padding:36px 28px; max-width:360px;
+          width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.08) }
+  h1 { font-size:22px; margin-bottom:6px }
+  .dim { color:var(--dim); font-size:14px }
+  .btn { display:block; margin-top:14px; padding:14px; border-radius:999px;
+         background:var(--accent); color:#fff; font-weight:800; text-decoration:none }
+  .stores { display:flex; gap:10px; margin-top:18px }
+  .stores a { flex:1; padding:12px; border-radius:14px; background:#eef1f3;
+              color:var(--ink); font-weight:700; text-decoration:none; font-size:14px }
+  .stores span { flex:1; padding:12px; border-radius:14px; background:#f6f7f8;
+                 color:var(--dim); font-weight:700; font-size:14px }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🐾 DogPuzzle</h1>
+  <p class="dim">한 칸씩 짚어 가며 푸는 강아지 퍼즐</p>
+  <div class="stores" id="stores"></div>
+  <p class="dim" id="note" style="margin-top:16px"></p>
+</div>
+
+<script src="/stores.js"></script>
+<script>
+  var S = window.DOGPUZZLE_STORES || { android: "", ios: "" };
+  var ua = navigator.userAgent || "";
+  var isiOS = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+
+  /*
+    인앱 브라우저(카카오톡·인스타그램 등)에서도 **스토어 링크는 열립니다.**
+    /vs/ 페이지와 달리 여기는 커스텀 스킴을 쓰지 않으니 막힐 것이 없습니다.
+    그래서 따로 안내하지 않습니다.
+  */
+  function cell(label, href) {
+    // 주소가 없으면 누를 수 없는 회색 칸으로 둡니다. 죽은 링크를 눌러
+    // "찾을 수 없는 페이지"를 보는 것보다 낫습니다.
+    return href
+      ? '<a href="' + href + '">' + label + '</a>'
+      : '<span>' + label + '<br><small>곧 나와요</small></span>';
+  }
+
+  document.getElementById("stores").innerHTML =
+    cell("Google Play", S.android) + cell("App Store", S.ios);
+
+  // 쓰는 기기의 스토어가 준비돼 있으면 바로 넘깁니다 — 한 번 더 누르게 할 이유가 없습니다.
+  var mine = isiOS ? S.ios : isAndroid ? S.android : "";
+  if (mine) {
+    document.getElementById("note").textContent = "스토어로 넘어가고 있어요…";
+    setTimeout(function () { location.href = mine; }, 600);
+  } else if (isiOS || isAndroid) {
+    document.getElementById("note").textContent = "아직 준비 중이에요. 조금만 기다려 주세요!";
+  } else {
+    document.getElementById("note").textContent = "휴대폰에서 열면 스토어로 바로 갑니다.";
+  }
+</script>
+</body>
+</html>

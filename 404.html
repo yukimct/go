@@ -46,6 +46,7 @@
     <a id="ios" href="#">App Store</a>
   </div>
 </div>
+<script src="/stores.js"></script>
 <script>
   // /vs/123456 → 123456
   var m = location.pathname.match(/\/vs\/(\d{6})/);
@@ -101,15 +102,31 @@
       setTimeout(function () { location.href = scheme; }, 400);
     }
   } else {
-    document.querySelector(".card").innerHTML =
-      "<h1>🐾 DogPuzzle</h1><p class='dim'>주소가 올바르지 않아요</p>";
+    /*
+      방 번호가 없는 주소 — go.koinoroom.com을 그냥 치고 들어온 경우다.
+      예전에는 "주소가 올바르지 않아요"만 띄웠는데, **찾아온 사람을 빈손으로
+      돌려보내는 것**이라 설치 안내로 보낸다. /get과 같은 화면이다.
+    */
+    location.replace("/get/");
   }
 
-  // 스토어 주소 — 출시 후 실제 주소로 바꿔 주세요.
-  document.getElementById("android").href =
-    "https://play.google.com/store/apps/details?id=com.yeonguk.DogPuzzle";
-  document.getElementById("ios").href =
-    "https://apps.apple.com/app/dogpuzzle"; // TODO: 심사 통과 후 앱 id로 교체
+  /*
+    스토어 주소는 **stores.js 한 곳**에 있습니다. 여기 직접 적지 마세요 —
+    iOS 앱 id는 심사를 통과해야 나오는데, 세 페이지에 흩어져 있으면 한 곳을
+    빠뜨립니다. /get 페이지도 같은 파일을 봅니다.
+  */
+  var S = window.DOGPUZZLE_STORES || { android: "", ios: "" };
+  function setStore(id, href) {
+    var el = document.getElementById(id);
+    if (!el) return;                 // 코드가 없으면 위에서 화면을 통째로 넘긴다
+    if (href) { el.href = href; return; }
+    // 없는 주소를 걸어 두면 스토어가 "찾을 수 없는 페이지"를 띄운다 — 눌리지 않게 둔다.
+    el.removeAttribute("href");
+    el.style.color = "#8a8a94";
+    el.innerHTML += "<br><small>곧 나와요</small>";
+  }
+  setStore("android", S.android);
+  setStore("ios", S.ios);
 </script>
 </body>
 </html>
